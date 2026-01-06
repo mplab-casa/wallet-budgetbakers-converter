@@ -1,18 +1,196 @@
-<script src="index.js"></script>
-<script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.18.12/package/dist/xlsx.full.min.js"></script>
-<script type = "text/JavaScript" src = "https://momentjs.com/downloads/moment-with-locales.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satispay to Budget Bakers Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
 
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
 
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        input[type="file"], input[type="date"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="file"]:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .convert-btn:active {
+            transform: translateY(0);
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px 16px;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            background: #f8f9ff;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-input-label:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
 <body>
-    <label for="inputFile">Importa il file xlsx esportato da satispay: </label>
-    <input type="file" id="inputFile" name="inputFile">
-</br>
-	<label for="inputFromDate">Dal giorno</label>
-	<input type="date" id="inputFromDate" name="inputFromDate">
-</br>
-<button onclick="analyze()">Converti</button>
+    <div class="container">
+        <div class="logo">💰📊</div>
+        <h1>Satispay to Budget Bakers</h1>
+        <p class="subtitle">Convert your Satispay Excel export to Budget Bakers compatible format</p>
+        
+        <div class="info-box">
+            <strong>How it works:</strong> Upload your Satispay Excel file, optionally set a start date, and get a clean Budget Bakers compatible file.
+        </div>
+
+        <div class="form-group">
+            <label for="inputFile">📁 Select Satispay Excel File</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="inputFile" name="inputFile" accept=".xlsx,.xls">
+                <label for="inputFile" class="file-input-label">
+                    Click to choose file or drag & drop
+                </label>
+            </div>
+            <div class="file-name" id="fileName"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="inputFromDate">📅 Filter from date (optional)</label>
+            <input type="date" id="inputFromDate" name="inputFromDate">
+        </div>
+
+        <button class="convert-btn" onclick="analyze()">
+            🔄 Convert & Download
+        </button>
+    </div>
+
+    <script>
+        // Show selected file name
+        document.getElementById('inputFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || '';
+            document.getElementById('fileName').textContent = fileName ? `Selected: ${fileName}` : '';
+        });
+    </script>
+
+    <script src="index.js"></script>
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.18.12/package/dist/xlsx.full.min.js"></script>
+    <script type="text/JavaScript" src="https://momentjs.com/downloads/moment-with-locales.min.js"></script>
 </body>
-
-
+</html>
